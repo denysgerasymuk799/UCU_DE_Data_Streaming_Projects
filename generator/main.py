@@ -1,7 +1,8 @@
 import json
+import time
+import logging
 import pandas as pd
 from kafka import KafkaProducer
-import logging
 
 logging.basicConfig(level=logging.INFO)
 
@@ -39,9 +40,13 @@ class KafkaDataProducer:
     def send_data(self, topic_name, df):
         for index, row in df.iterrows():
             record = self.delimiter.join(row.astype(str))
-            logging.info(f"data {record}")
             self.producer.send(topic_name, record)
-            logging.info(f'Sent record {index + 1} to Kafka')
+            self.producer.flush()
+            logging.info(f'Sent record #{index + 1} to Kafka')
+
+            # Periodically add messages to a topic to check statistics
+            if (index + 1) % 200 == 0:
+                time.sleep(5)
 
 
 if __name__ == "__main__":

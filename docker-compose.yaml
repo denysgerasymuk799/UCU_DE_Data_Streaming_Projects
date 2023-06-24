@@ -23,20 +23,104 @@ services:
     environment:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - CREATE_KAFKA_TOPIC=reddit_comments_topic-2:3:1
     depends_on:
       - zookeeper
     networks:
       - project-network
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    networks:
+      - project-network
+    depends_on:
+      - kafka_broker1
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka_broker1:9092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic CommentsTopic --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic LanguagesTopic --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic SentimentsTopic --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic KeywordsTopic --replication-factor 1 --partitions 3
+      
+      # Technical topics
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic statistics-aggregator-langs-count-changelog --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic statistics-aggregator-sentiments-count-changelog --replication-factor 1 --partitions 3
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic statistics-aggregator-keywords-count-changelog --replication-factor 1 --partitions 3
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka_broker1:9092 --list
+      "
 
   generator:
     build:
       context: ./generator
     networks:
       - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 30
+        # Run the client code
+        python -u main.py
 
-  sentiment-analysis:
+  language-detector:
     build:
-      context: ./sentiment-analysis
+      context: ./language-detector
     networks:
       - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 20
+        # Run the client code
+        python -m faust -A kafka_streams worker -l info
+
+  sentiment-analyzer:
+    build:
+      context: sentiment-analyzer
+    networks:
+      - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 20
+        # Run the client code
+        python -u main.py
+
+  keyword-detector:
+    build:
+      context: ./keyword-detector
+    networks:
+      - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 20
+        # Run the client code
+        python -m faust -A kafka_streams worker -l info
+
+  statistics-aggregator:
+    build:
+      context: ./statistics-aggregator
+    networks:
+      - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 20
+        # Run the client code
+        python -m faust -A kafka_streams worker -l info
