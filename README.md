@@ -7,6 +7,8 @@
 1 million Reddit comments from 40 subreddits:
 https://www.kaggle.com/datasets/smagnan/1-million-reddit-comments-from-40-subreddits
 
+Please download the dataset and place it to `./generator/data/kaggle_RC_2019-05.csv`.
+
 
 ## How to run it?
 
