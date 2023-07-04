@@ -23,9 +23,20 @@ services:
     environment:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - CREATE_KAFKA_TOPIC=test_topic1:3:1,test_topic2:3:1
+      - CREATE_KAFKA_TOPIC=reddit_comments_topic-2:3:1
     depends_on:
       - zookeeper
     networks:
       - project-network
 
+  generator:
+    build:
+      context: ./generator
+    networks:
+      - project-network
+
+  sentiment-analysis:
+    build:
+      context: ./sentiment-analysis
+    networks:
+      - project-network
