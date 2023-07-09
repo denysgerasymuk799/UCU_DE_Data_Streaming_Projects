@@ -3,6 +3,7 @@ notebooks
 *.env
 .DS_Store
 .ipynb_checkpoints
+generator/data
 
 # Remove big files from GitHub repo
 

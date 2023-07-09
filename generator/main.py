@@ -1,7 +1,7 @@
 import json
+import logging
 import pandas as pd
 from kafka import KafkaProducer
-import logging
 
 logging.basicConfig(level=logging.INFO)
 
