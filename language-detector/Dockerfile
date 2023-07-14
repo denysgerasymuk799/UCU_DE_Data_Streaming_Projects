@@ -1,16 +1,14 @@
-FROM python:3.10-slim-buster
+FROM python:3.8-slim
 
-# Set the working directory in the container to /app
-WORKDIR /app
+RUN apt-get update
 
-# Copy the requirements.txt file into the container at /app
-COPY requirements.txt /app
+ADD ./requirements.txt /opt/app/requirements.txt
+WORKDIR /opt/app/
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+RUN pip install -r ./requirements.txt
 
-# Run the command python3 main.py when the container launches
-CMD ["python3", "main.py"]
+COPY ./ /opt/app/
+
+CMD python -m faust -A kafka_streams worker -l info

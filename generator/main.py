@@ -43,6 +43,10 @@ class KafkaDataProducer:
             self.producer.send(topic_name, record)
             logging.info(f'Sent record {index + 1} to Kafka')
 
+            # For debugging
+            if index == 100:
+                break
+
 
 if __name__ == "__main__":
     config_manager = ConfigManager('config.json')

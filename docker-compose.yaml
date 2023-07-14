@@ -34,9 +34,39 @@ services:
       context: ./generator
     networks:
       - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 15
+        # Run the client code
+        python -u main.py
 
-  sentiment-analysis:
+  language-detector:
     build:
-      context: ./sentiment-analysis
+      context: ./language-detector
     networks:
       - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 15
+        # Run the client code
+        python -m faust -A kafka_streams worker -l info
+
+#  sentiment-analysis:
+#    build:
+#      context: ./sentiment-analysis
+#    networks:
+#      - project-network
+#    entrypoint:
+#      - bash
+#      - -c
+#      - |
+#        echo 'Giving Kafka a bit of time to start up…'
+#        sleep 15
+#        # Run the client code
+#        python -u main.py
