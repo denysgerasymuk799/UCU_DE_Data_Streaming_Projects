@@ -2,12 +2,10 @@ import json
 import faust
 import logging
 
-from langdetect import detect, DetectorFactory
+from summa import keywords
 from logger import CustomHandler
 from config import *
 
-
-DetectorFactory.seed = 0
 
 # Prepare own helper class objects
 logger = logging.getLogger('root')
@@ -15,15 +13,14 @@ logger.setLevel('INFO')
 logging.disable(logging.DEBUG)
 logger.addHandler(CustomHandler())
 
-
 # Initialize Faust app along with Kafka topic objects.
-app = faust.App('language-detector',
+app = faust.App('keyword-detector',
                 broker=KAFKA_BROKER,
                 value_serializer='raw',
                 web_host=FAUST_HOST,
                 web_port=FAUST_PORT)
 comments_topic = app.topic(COMMENTS_TOPIC)
-languages_topic = app.topic(LANGUAGES_TOPIC)
+keywords_topic = app.topic(KEYWORDS_TOPIC)
 
 
 @app.agent(comments_topic)
@@ -35,9 +32,9 @@ async def process_comments(records):
         logger.info(f"subreddit: {subreddit}. comment: {comment[:50]}.")
 
         # Do the required stuff
-        lang = detect(comment)
+        TR_keywords = keywords.keywords(comment, scores=False)
         message = {
             'subreddit': subreddit,
-            'language': lang,
+            'keywords': [kw.lower() for kw in TR_keywords],
         }
-        await languages_topic.send(value=json.dumps(message).encode())
+        await keywords_topic.send(value=json.dumps(message).encode())
