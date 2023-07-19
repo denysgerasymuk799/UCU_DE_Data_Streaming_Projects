@@ -1,9 +1,14 @@
+import json
 import faust
 import logging
 
+from langdetect import detect, DetectorFactory
 from logger import CustomHandler
+
 from config import *
 
+
+DetectorFactory.seed = 0
 
 # Prepare own helper class objects
 logger = logging.getLogger('root')
@@ -23,11 +28,17 @@ languages_topic = app.topic(LANGUAGES_TOPIC)
 
 
 @app.agent(comments_topic)
-async def process_transactions(records):
+async def process_comments(records):
     async for record in records:
-        # Get message details.
-        subreddit, comment = record.split(DELIMITER)
-        # Log received message.
+        # Get message details
+        subreddit, comment = record.decode("utf-8").split(DELIMITER)
+        # Log received message
         logger.info(f"subreddit: {subreddit}. comment: {comment[:50]}.")
 
-        # Do the required stuff.
+        # Do the required stuff
+        lang = detect(comment)
+        message = {
+            'subreddit': subreddit,
+            'language': lang,
+        }
+        await languages_topic.send(value=json.dumps(message).encode())
