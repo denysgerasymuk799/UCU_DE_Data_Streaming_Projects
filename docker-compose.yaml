@@ -64,20 +64,20 @@ services:
         # Run the client code
         python -u main.py
 
-#  language-detector:
-#    build:
-#      context: ./language-detector
-#    networks:
-#      - project-network
-#    entrypoint:
-#      - bash
-#      - -c
-#      - |
-#        echo 'Giving Kafka a bit of time to start up…'
-#        sleep 15
-#        # Run the client code
-#        python -m faust -A kafka_streams worker -l info
-#
+  language-detector:
+    build:
+      context: ./language-detector
+    networks:
+      - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 15
+        # Run the client code
+        python -m faust -A kafka_streams worker -l info
+
 #  sentiment-analyzer:
 #    build:
 #      context: sentiment-analyzer
@@ -91,10 +91,24 @@ services:
 #        sleep 15
 #        # Run the client code
 #        python -u main.py
+#
+#  keyword-detector:
+#    build:
+#      context: ./keyword-detector
+#    networks:
+#      - project-network
+#    entrypoint:
+#      - bash
+#      - -c
+#      - |
+#        echo 'Giving Kafka a bit of time to start up…'
+#        sleep 15
+#        # Run the client code
+#        python -m faust -A kafka_streams worker -l info
 
-  keyword-detector:
+  statistics-aggregator:
     build:
-      context: ./keyword-detector
+      context: ./statistics-aggregator
     networks:
       - project-network
     entrypoint:

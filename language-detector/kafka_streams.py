@@ -31,8 +31,7 @@ async def process_comments(records):
     async for record in records:
         # Get message details
         subreddit, comment = record.decode("utf-8").split(DELIMITER)
-        # Log received message
-        logger.info(f"subreddit: {subreddit}. comment: {comment[:50]}.")
+        # logger.info(f"subreddit: {subreddit}. comment: {comment[:50]}.")
 
         # Do the required stuff
         lang = detect(comment)
