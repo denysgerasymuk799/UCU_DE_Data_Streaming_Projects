@@ -45,6 +45,9 @@ services:
       kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic LanguagesTopic --replication-factor 1 --partitions 3
       kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic SentimentsTopic --replication-factor 1 --partitions 3
       kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic KeywordsTopic --replication-factor 1 --partitions 3
+      
+      # Technical topics
+      kafka-topics --bootstrap-server kafka_broker1:9092 --create --if-not-exists --topic statistics-aggregator-sentiments-count-changelog --replication-factor 1 --partitions 3
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka_broker1:9092 --list
@@ -78,20 +81,20 @@ services:
         # Run the client code
         python -m faust -A kafka_streams worker -l info
 
-#  sentiment-analyzer:
-#    build:
-#      context: sentiment-analyzer
-#    networks:
-#      - project-network
-#    entrypoint:
-#      - bash
-#      - -c
-#      - |
-#        echo 'Giving Kafka a bit of time to start up…'
-#        sleep 15
-#        # Run the client code
-#        python -u main.py
-#
+  sentiment-analyzer:
+    build:
+      context: sentiment-analyzer
+    networks:
+      - project-network
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Giving Kafka a bit of time to start up…'
+        sleep 15
+        # Run the client code
+        python -u main.py
+
 #  keyword-detector:
 #    build:
 #      context: ./keyword-detector
