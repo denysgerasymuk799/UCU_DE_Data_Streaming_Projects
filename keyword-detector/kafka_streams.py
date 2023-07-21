@@ -13,7 +13,7 @@ logger.setLevel('INFO')
 logging.disable(logging.DEBUG)
 logger.addHandler(CustomHandler())
 
-# Initialize Faust app along with Kafka topic objects.
+# Initialize Faust app along with Kafka topic objects
 app = faust.App('keyword-detector',
                 broker=KAFKA_BROKER,
                 value_serializer='raw',
@@ -33,6 +33,6 @@ async def process_comments(records):
         TR_keywords = keywords.keywords(comment, scores=False, split=True)
         message = {
             'subreddit': subreddit,
-            'keywords': [kw.lower() for kw in TR_keywords],
+            'keywords': [kw.lower() for kw in TR_keywords if kw == 'I' or len(kw) > 1],
         }
         await keywords_topic.send(value=json.dumps(message).encode())

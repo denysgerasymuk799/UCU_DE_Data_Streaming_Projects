@@ -16,7 +16,7 @@ logging.disable(logging.DEBUG)
 logger.addHandler(CustomHandler())
 
 
-# Initialize Faust app along with Kafka topic objects.
+# Initialize Faust app along with Kafka topic objects
 app = faust.App('language-detector',
                 broker=KAFKA_BROKER,
                 value_serializer='raw',
@@ -31,7 +31,6 @@ async def process_comments(records):
     async for record in records:
         # Get message details
         subreddit, comment = record.decode("utf-8").split(DELIMITER)
-        # logger.info(f"subreddit: {subreddit}. comment: {comment[:50]}.")
 
         # Do the required stuff
         lang = detect(comment)

@@ -83,7 +83,6 @@ class SentimentAnalyzerService:
 
 
 if __name__ == "__main__":
-    logging.info("starting..")
     text_analyzer = TextAnalyzer()
     kafka_producer = KafkaProducerService('kafka_broker1:9092')
     kafka_consumer = KafkaConsumerService('kafka_broker1:9092', COMMENTS_TOPIC)

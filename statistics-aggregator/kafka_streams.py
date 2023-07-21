@@ -26,6 +26,8 @@ keywords_table = app.Table("keywords-count", key_type=str, value_type=int, parti
 
 def get_top_rows(table, top_n: int):
     top_n_vals = []
+    # Note that table.items() uses buffer to get all records from the RocksDB table.
+    # So it does not cause memory overflow.
     for k, v in table.items():
         if len(top_n_vals) < top_n:
             top_n_vals.append((k, v))
@@ -40,7 +42,7 @@ def get_top_rows(table, top_n: int):
 
 
 @app.timer(interval=3.0)
-async def every_minute():
+async def print_stats_periodically():
     logging.info(f"\n{'=' * 20} List of languages with numbers of messages {'=' * 20}\n"
                  f"{langs_table.as_ansitable()}")
     logging.info(f"\n{'=' * 20} Number of messages among sentiment classes {'=' * 20}\n"
@@ -52,13 +54,12 @@ async def every_minute():
         final_str += f'{keyword}: {num_occurrences}\n'
     final_str += '\n\n\n'
     logging.info(f"\n{'=' * 20} Top 10 keywords {'=' * 20}\n"
-                 f"{keywords_table.as_ansitable()}\n\n{final_str}")
+                 f"{final_str}")
 
 
 @app.agent(languages_topic)
 async def process_languages(records):
     async for record in records:
-        # Get message details
         message = json.loads(record)
         langs_table[message['language']] += 1
 
@@ -66,7 +67,6 @@ async def process_languages(records):
 @app.agent(sentiments_topic)
 async def process_sentiments(records):
     async for record in records:
-        # Get message details
         message = json.loads(record)
         sentiments_table[message['sentiment']] += 1
 
@@ -74,7 +74,6 @@ async def process_sentiments(records):
 @app.agent(keywords_topic)
 async def process_keywords(records):
     async for record in records:
-        # Get message details
         message = json.loads(record)
         for keyword in message['keywords']:
             keywords_table[keyword] += 1

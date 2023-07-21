@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 import pandas as pd
 from kafka import KafkaProducer
@@ -43,9 +44,9 @@ class KafkaDataProducer:
             self.producer.flush()
             logging.info(f'Sent record #{index + 1} to Kafka')
 
-            # For debugging
-            if index == 200:
-                break
+            # Periodically add messages to a topic to check statistics
+            if (index + 1) % 200 == 0:
+                time.sleep(6)
 
 
 if __name__ == "__main__":
