@@ -1,5 +1,0 @@
-{
-  "kafka_server": "kafka_broker1:9092",
-  "topic_name": "CommentsTopic",
-  "dataset_location": "./data/kaggle_RC_2019-05.csv"
-}
