@@ -71,7 +71,6 @@ class SentimentAnalyzerService:
                 for msg in consumer:
                     subreddit, comment = msg.value.split(self.delimiter)
                     sentiment = self.text_analyzer.analyze(comment)
-                    # logging.info(f"subreddit: {subreddit}. comment: {comment[:50]}. Sentiment: {sentiment}")
 
                     message = {
                         'subreddit': subreddit,

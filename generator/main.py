@@ -39,12 +39,12 @@ class KafkaDataProducer:
     def send_data(self, topic_name, df):
         for index, row in df.iterrows():
             record = self.delimiter.join(row.astype(str))
-            logging.info(f"data {record}")
             self.producer.send(topic_name, record)
-            logging.info(f'Sent record {index + 1} to Kafka')
+            self.producer.flush()
+            logging.info(f'Sent record #{index + 1} to Kafka')
 
             # For debugging
-            if index == 100:
+            if index == 200:
                 break
 
 
